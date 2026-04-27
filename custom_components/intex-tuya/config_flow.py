@@ -20,6 +20,18 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    @staticmethod
+    def _schema() -> vol.Schema:
+        """Return the config schema."""
+        return vol.Schema(
+            {
+                vol.Required(CONF_NAME): str,
+                vol.Required(CONF_HOST): str,
+                vol.Required(CONF_DEVICE_ID): str,
+                vol.Required(CONF_LOCAL_KEY): str,
+            }
+        )
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
@@ -44,16 +56,44 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data=user_input,
                 )
 
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_NAME): str,
-                vol.Required(CONF_HOST): str,
-                vol.Required(CONF_DEVICE_ID): str,
-                vol.Required(CONF_LOCAL_KEY): str,
-            }
+        return self.async_show_form(
+            step_id="user",
+            data_schema=self._schema(),
+            errors=errors,
         )
 
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle reconfiguration of the integration."""
+        errors: dict[str, str] = {}
+        entry = self._get_reconfigure_entry()
+
+        if user_input is not None:
+            try:
+                await self._validate_input(user_input)
+            except ConnectionError:
+                errors["base"] = "connection_error"
+            except Exception as err:
+                _LOGGER.exception("Unexpected error validating input: %s", err)
+                errors["base"] = "unknown"
+            else:
+                await self.async_set_unique_id(user_input[CONF_DEVICE_ID])
+                self._abort_if_unique_id_mismatch(reason="wrong_device")
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    title=user_input.get(CONF_NAME, user_input[CONF_DEVICE_ID]),
+                )
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data_updates=user_input,
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(self._schema(), entry.data),
+            errors=errors,
+        )
 
     async def _validate_input(self, user_input: dict[str, Any]) -> None:
         """Validate the user input allows us to connect.

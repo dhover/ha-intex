@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, DP_POWER, DP_PUMP
+from .const import DOMAIN, DP_BUBBLES, DP_FILTER, DP_POWER
 from .tuya_local import TuyaLocalDevice
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,7 +27,8 @@ async def async_setup_entry(
 
     entities = [
         IntexPoolSwitch(device, device_id, DP_POWER, "Power"),
-        IntexPoolSwitch(device, device_id, DP_PUMP, "Pump"),
+        IntexPoolSwitch(device, device_id, DP_FILTER, "Filter"),
+        IntexPoolSwitch(device, device_id, DP_BUBBLES, "Bubbles"),
     ]
 
     async_add_entities(entities)

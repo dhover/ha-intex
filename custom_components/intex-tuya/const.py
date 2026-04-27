@@ -9,12 +9,14 @@ CONF_LOCAL_KEY = "local_key"
 
 # Tuya device DPs (Data Points)
 # These are the function codes for pool-specific controls
-DP_POWER = "104"           # Power switch
-DP_PUMP = "2"            # Pump control
-DP_HEATER = "108"          # Heater control
-DP_TEMPERATURE = "110"     # Current water temperature
-DP_TARGET_TEMP = "109"     # Target temperature
-DP_HUMIDITY = "6"        # Humidity
+DP_POWER = "104"          # Power switch
+DP_FILTER = "106"         # Filter control
+DP_BUBBLES = "107"        # Bubbles control
+DP_HEATER = "108"         # Heater control
+DP_TARGET_TEMP = "109"    # Target temperature
+DP_TEMPERATURE = "110"    # Current water temperature
+DP_ERROR_CODE = "114"     # Error code / diagnostic
+DP_HVAC_ACTION = "117"    # Heater activity state
 
 # Entity platforms
 PLATFORMS = [

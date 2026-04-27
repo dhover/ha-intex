@@ -1,16 +1,22 @@
-"""Sensor entities for Intex pool via Tuya."""
+"""Sensor entities for Intex pool values via Tuya."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature, PERCENTAGE
+from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, DP_TEMPERATURE, DP_HUMIDITY
+from .const import (
+    DOMAIN,
+    DP_ERROR_CODE,
+    DP_HVAC_ACTION,
+    DP_TARGET_TEMP,
+    DP_TEMPERATURE,
+)
 from .tuya_local import TuyaLocalDevice
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,12 +34,32 @@ async def async_setup_entry(
 
     entities = [
         IntexPoolSensor(
-            device, device_id, DP_TEMPERATURE, "Water Temperature", 
-            SensorDeviceClass.TEMPERATURE, UnitOfTemperature.CELSIUS, 0.1
+            device,
+            device_id,
+            DP_TEMPERATURE,
+            "Current Temperature",
+            SensorDeviceClass.TEMPERATURE,
+            UnitOfTemperature.FAHRENHEIT,
         ),
         IntexPoolSensor(
-            device, device_id, DP_HUMIDITY, "Air Humidity",
-            SensorDeviceClass.HUMIDITY, PERCENTAGE, 1.0
+            device,
+            device_id,
+            DP_TARGET_TEMP,
+            "Target Temperature",
+            SensorDeviceClass.TEMPERATURE,
+            UnitOfTemperature.FAHRENHEIT,
+        ),
+        IntexPoolSensor(
+            device,
+            device_id,
+            DP_HVAC_ACTION,
+            "Heat Indicator",
+        ),
+        IntexPoolSensor(
+            device,
+            device_id,
+            DP_ERROR_CODE,
+            "Error Code",
         ),
     ]
 
@@ -44,7 +70,6 @@ class IntexPoolSensor(SensorEntity):
     """Sensor for pool values."""
 
     _attr_has_entity_name = True
-    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
@@ -52,9 +77,8 @@ class IntexPoolSensor(SensorEntity):
         device_id: str,
         dp: str,
         name: str,
-        device_class: SensorDeviceClass,
-        unit: str,
-        scale: float = 1.0,
+        device_class: SensorDeviceClass | None = None,
+        unit: str | None = None,
     ) -> None:
         """Initialize the sensor."""
         self.device = device
@@ -64,8 +88,7 @@ class IntexPoolSensor(SensorEntity):
         self._attr_device_class = device_class
         self._attr_native_unit_of_measurement = unit
         self._attr_unique_id = f"{device_id}_{dp}"
-        self._scale = scale
-        self._attr_native_value = 0.0
+        self._attr_native_value: Any = None
 
     @property
     def device_info(self) -> dict[str, Any]:
@@ -80,12 +103,23 @@ class IntexPoolSensor(SensorEntity):
     async def async_update(self) -> None:
         """Update the entity."""
         status = await self.device.get_status()
-        if status and "dps" in status:
-            dps = status["dps"]
-            _LOGGER.debug("Sensor %s (%s) update - Available DPs: %s", self._attr_name, self._dp, dps)
-            if self._dp in dps:
-                raw_value = dps[self._dp]
-                self._attr_native_value = float(raw_value) * self._scale
-                _LOGGER.debug("Sensor %s updated: raw=%s, scaled=%s %s", self._attr_name, raw_value, self._attr_native_value, self._attr_native_unit_of_measurement)
-            else:
-                _LOGGER.warning("DP %s not found in response. Available: %s", self._dp, list(dps.keys()))
+        if not status or "dps" not in status:
+            return
+
+        dps = status["dps"]
+        _LOGGER.debug(
+            "Sensor %s (%s) update - Available DPs: %s",
+            self._attr_name,
+            self._dp,
+            dps,
+        )
+        if self._dp in dps:
+            raw_value = dps[self._dp]
+            self._attr_native_value = raw_value
+            _LOGGER.debug("Sensor %s updated: raw=%s", self._attr_name, raw_value)
+        else:
+            _LOGGER.warning(
+                "DP %s not found in response. Available: %s",
+                self._dp,
+                list(dps.keys()),
+            )

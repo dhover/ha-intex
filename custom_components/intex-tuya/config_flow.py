@@ -29,9 +29,7 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Validate the input
             try:
-                await self.hass.async_add_executor_job(
-                    self._validate_input, user_input
-                )
+                await self._validate_input(user_input)
             except ConnectionError:
                 errors["base"] = "connection_error"
             except Exception as err:
@@ -57,7 +55,7 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
-    def _validate_input(self, user_input: dict[str, Any]) -> None:
+    async def _validate_input(self, user_input: dict[str, Any]) -> None:
         """Validate the user input allows us to connect.
 
         Data has the host, device_id, and local_key entered.
@@ -67,6 +65,10 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             device_id=user_input[CONF_DEVICE_ID],
             local_key=user_input[CONF_LOCAL_KEY],
         )
-        # Test connection
-        if not device.test_connection():
+        try:
+            status = await device.get_status()
+        finally:
+            await device.disconnect()
+
+        if not status or "dps" not in status:
             raise ConnectionError("Unable to connect to device")

@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Intex Pool Device",
+        "description": "Enter your device IP address, Device ID, and Local Key.",
+        "data": {
+          "name": "Device Name",
+          "host": "Device IP Address",
+          "device_id": "Device ID",
+          "local_key": "Local Key"
+        }
+      }
+    },
+    "error": {
+      "connection_error": "Failed to connect to device",
+      "unknown": "An unknown error occurred"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}

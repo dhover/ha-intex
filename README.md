@@ -1,121 +1,138 @@
 # Home Assistant Intex Pool Integration via Tuya (Local)
 
-A custom Home Assistant integration for controlling Intex pool devices via the Tuya protocol using **local network communication** (no cloud dependencies).
+A custom Home Assistant integration for controlling an Intex spa or pool device over the local Tuya protocol.
 
 ## Features
 
-- **Local Communication Only**: Direct connection to device via IP address - no cloud dependency
-- **Climate Control**: Manage heater temperature settings (20-40°C)
-- **Switches**: Control pump and power states
-- **Sensors**: Monitor water temperature and air humidity
-- **Real-time Updates**: Periodic polling of device status (10 second intervals)
-- **Low Latency**: Direct local network communication for faster response times
+- Local communication only, no Tuya cloud dependency for normal control
+- Tuya protocol `3.4` via `tinytuya`
+- Climate entity for the spa thermostat
+- Separate switches for `Power`, `Filter`, `Bubbles`, and `Heat`
+- Sensors for current temperature, target temperature, heat state, and error code
+- Config flow with reconfigure support from the integration menu
 
 ## Installation
 
 1. Copy the `intex-tuya` folder to your Home Assistant `custom_components` directory:
-   ```
+
+   ```text
    custom_components/intex-tuya/
    ```
 
-2. Restart Home Assistant
-
-3. Go to Settings → Devices & Services → Create Integration
-
-4. Search for "Intex Pool via Tuya (Local)" and add the integration
+2. Restart Home Assistant.
+3. Go to **Settings > Devices & Services**.
+4. Add **Intex Pool via Tuya (Local)**.
 
 ## Configuration
 
-You'll need the following information from your Tuya device:
+The config flow asks for:
 
-- **Device Name**: A friendly name for your pool device (e.g., "Pool")
-- **Device IP Address**: The local IP address of your pool device (e.g., 192.168.1.100)
-- **Device ID**: Found in the Tuya Smart Home app or device settings
-- **Local Key**: The local encryption key for your device
+- `Device Name`: used as the Home Assistant device name
+- `Device IP Address`: used as the integration entry title
+- `Device ID`
+- `Local Key`
 
-### Finding Your Device Information
+You can change these later from the integration's reconfigure action.
 
-1. **IP Address**: 
-   - Check your router's DHCP client list for the device IP
-   - Or use network scanning tools like arp-scan or nmap
+### Finding your device information
 
-2. **Device ID & Local Key**:
-   - Open the Tuya Smart Home app
-   - Long-press on your pool device
-   - Go to Device Information or Settings
-   - Find "Device ID" and "Local Key" values
-   - Note: Some devices store this in the app's cached data
+1. Find the IP address in your router or DHCP lease table.
+2. Find the `Device ID` and `Local Key` from your Tuya app or Tuya developer tooling.
 
 ## Entities
 
 ### Climate
-- `climate.intex_pool_heater` - Control pool heater temperature (20-40°C)
+
+- `climate.<device_name>_thermostat`
+
+This thermostat uses Fahrenheit and follows the current device mapping:
+
+- target temperature DP: `109`
+- current temperature DP: `110`
+- HVAC mode DP: `108`
+- HVAC action DP: `117`
+- min/max temperature: `50-104 F`
 
 ### Switches
-- `switch.intex_pool_power` - Main power control
-- `switch.intex_pool_pump` - Pump control
+
+- `switch.<device_name>_power`
+- `switch.<device_name>_filter`
+- `switch.<device_name>_bubbles`
+- `switch.<device_name>_heat`
 
 ### Sensors
-- `sensor.intex_pool_water_temperature` - Current water temperature (°C)
-- `sensor.intex_pool_air_humidity` - Current air humidity (%)
 
-## Device Data Points (DPs)
+- `sensor.<device_name>_current_temperature`
+- `sensor.<device_name>_target_temperature`
+- `sensor.<device_name>_heat_indicator`
+- `sensor.<device_name>_error_code`
 
-The integration uses the following Tuya data points:
+## Device Data Points
 
-| DP | Name | Type | Description |
-|----|------|------|-------------|
-| 1 | Power | Bool | Main power switch |
-| 2 | Pump | Bool | Pump control |
-| 3 | Heater | Bool | Heater on/off |
-| 4 | Temperature | Int | Current water temperature (×10) |
-| 5 | Target Temp | Int | Target water temperature (×10) |
-| 6 | Humidity | Int | Air humidity percentage |
+This integration is currently mapped for the following Intex/Tuya spa layout:
 
-*Note: If your device uses different DPs, modify the values in `const.py`*
+| DP | Purpose |
+|----|---------|
+| `104` | Power |
+| `106` | Filter |
+| `107` | Bubbles |
+| `108` | Heat / HVAC mode |
+| `109` | Target temperature |
+| `110` | Current temperature |
+| `114` | Error code |
+| `117` | HVAC action |
 
-## Protocol Details
+If your device exposes different DPs, update [const.py](D:/git/ha-intex/custom_components/intex-tuya/const.py).
 
-This integration uses the **Tuya Local Protocol** with the following specifications:
+## Protocol Notes
 
-- **Port**: 6668 (TCP)
-- **Encryption**: AES-128-ECB with PKCS7 padding
-- **Authentication**: Device ID + Protocol Version + Local Key
-- **Message Format**: Binary protocol with MD5 checksums
+- Port: `6668/TCP`
+- Protocol version: `3.4`
+- Library: `tinytuya`
 
-## Development
+## Logging and Debugging
 
-To further develop this integration:
+Enable debug logging in `configuration.yaml`:
 
-1. The `tuya_local.py` module contains the Tuya local protocol client
-2. Entities are in `climate.py`, `switch.py`, and `sensor.py`
-3. Update `const.py` if your device uses different data points
+```yaml
+logger:
+  default: info
+  logs:
+    custom_components.intex_tuya: debug
+    custom_components.intex_tuya.tuya_local: debug
+```
+
+With debug logging enabled, the integration logs:
+
+- the full TinyTuya `status()` response
+- the full TinyTuya `set_value()` response
+
+That is useful when you want to inspect raw DPs or see whether your device exposes extra metadata.
+
+## Known Behavior
+
+- The configured `name` is used for the Home Assistant device name.
+- The configured IP address is used as the integration entry title.
+- There is currently no custom polling interval wired in code, even though `const.py` still contains a default interval constant.
 
 ## Troubleshooting
 
-**Device not found / Connection refused**:
-- Verify the IP address is correct and reachable
-- Ensure the device is on the same network as Home Assistant
-- Check firewall rules allow port 6668
+**Connection refused or unreachable**
 
-**Invalid Device ID or Local Key**:
-- Double-check the values from the Tuya app
-- Some devices require regenerating the Local Key in the app settings
-- Restart the device and try again
+- Verify the IP address is still correct.
+- Make sure Home Assistant can reach the device on port `6668`.
+- Check VLAN, guest network, and firewall rules.
 
-**Incorrect sensor readings**:
-- Check if your device uses different data point scaling
-- Modify the scaling factors in `const.py` if needed
+**Connects but returns no data**
 
-**Frequent disconnections**:
-- Some devices have unstable local connections
-- Try increasing the scan interval in configuration
-- Ensure good WiFi signal strength on the device
+- Confirm the device really uses local Tuya protocol `3.4`.
+- Re-check the `Local Key`.
+
+**Wrong DPs or missing entities**
+
+- Enable debug logging and inspect the full TinyTuya response.
+- Update the DP constants to match your device.
 
 ## License
 
 MIT License
-
-## Contributing
-
-Contributions are welcome! Please submit pull requests or open issues for bugs and feature requests.

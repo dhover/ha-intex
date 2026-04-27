@@ -21,6 +21,11 @@ from .tuya_local import TuyaLocalDevice
 
 _LOGGER = logging.getLogger(__name__)
 
+SENSOR_ICONS = {
+    DP_HVAC_ACTION: "mdi:radiator",
+    DP_ERROR_CODE: "mdi:alert-circle",
+}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -106,6 +111,11 @@ class IntexPoolSensor(SensorEntity):
             "manufacturer": "Intex",
             "model": "Smart Pool",
         }
+
+    @property
+    def icon(self) -> str | None:
+        """Return the icon for the sensor."""
+        return SENSOR_ICONS.get(self._dp)
 
     async def async_update(self) -> None:
         """Update the entity."""

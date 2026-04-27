@@ -14,6 +14,13 @@ from .tuya_local import TuyaLocalDevice
 
 _LOGGER = logging.getLogger(__name__)
 
+SWITCH_ICONS = {
+    DP_POWER: "mdi:power",
+    DP_FILTER: "mdi:air-filter",
+    DP_BUBBLES: "mdi:chart-bubble",
+    DP_HEATER: "mdi:fire",
+}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -72,6 +79,11 @@ class IntexPoolSwitch(SwitchEntity):
     def is_on(self) -> bool:
         """Return True if the switch is on."""
         return self._is_on
+
+    @property
+    def icon(self) -> str | None:
+        """Return the icon for the switch."""
+        return SWITCH_ICONS.get(self._dp)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the switch."""

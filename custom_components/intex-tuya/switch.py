@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, DP_BUBBLES, DP_FILTER, DP_POWER
+from .const import DOMAIN, DP_BUBBLES, DP_FILTER, DP_HEATER, DP_POWER
 from .tuya_local import TuyaLocalDevice
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,11 +24,13 @@ async def async_setup_entry(
     data = hass.data[DOMAIN][config_entry.entry_id]
     device = data["device"]
     device_id = data["device_id"]
+    device_name = data["name"]
 
     entities = [
-        IntexPoolSwitch(device, device_id, DP_POWER, "Power"),
-        IntexPoolSwitch(device, device_id, DP_FILTER, "Filter"),
-        IntexPoolSwitch(device, device_id, DP_BUBBLES, "Bubbles"),
+        IntexPoolSwitch(device, device_id, device_name, DP_POWER, "Power"),
+        IntexPoolSwitch(device, device_id, device_name, DP_FILTER, "Filter"),
+        IntexPoolSwitch(device, device_id, device_name, DP_BUBBLES, "Bubbles"),
+        IntexPoolSwitch(device, device_id, device_name, DP_HEATER, "Heat"),
     ]
 
     async_add_entities(entities)
@@ -43,12 +45,14 @@ class IntexPoolSwitch(SwitchEntity):
         self,
         device: TuyaLocalDevice,
         device_id: str,
+        device_name: str,
         dp: str,
         name: str,
     ) -> None:
         """Initialize the switch."""
         self.device = device
         self._device_id = device_id
+        self._device_name = device_name
         self._dp = dp
         self._attr_name = name
         self._attr_unique_id = f"{device_id}_{dp}"
@@ -59,7 +63,7 @@ class IntexPoolSwitch(SwitchEntity):
         """Return device info."""
         return {
             "identifiers": {(DOMAIN, self._device_id)},
-            "name": "Intex Pool",
+            "name": self._device_name,
             "manufacturer": "Intex",
             "model": "Smart Pool",
         }

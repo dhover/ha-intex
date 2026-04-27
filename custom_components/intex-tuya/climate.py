@@ -39,8 +39,9 @@ async def async_setup_entry(
     data = hass.data[DOMAIN][config_entry.entry_id]
     device = data["device"]
     device_id = data["device_id"]
+    device_name = data["name"]
 
-    async_add_entities([IntexPoolClimate(device, device_id)])
+    async_add_entities([IntexPoolClimate(device, device_id, device_name)])
 
 
 class IntexPoolClimate(ClimateEntity):
@@ -63,10 +64,12 @@ class IntexPoolClimate(ClimateEntity):
         self,
         device: TuyaLocalDevice,
         device_id: str,
+        device_name: str,
     ) -> None:
         """Initialize the climate entity."""
         self.device = device
         self._device_id = device_id
+        self._device_name = device_name
         self._attr_unique_id = f"{device_id}_thermostat"
         self._current_temp: float | None = None
         self._target_temp: float | None = None
@@ -78,7 +81,7 @@ class IntexPoolClimate(ClimateEntity):
         """Return device info."""
         return {
             "identifiers": {(DOMAIN, self._device_id)},
-            "name": "Intex Pool",
+            "name": self._device_name,
             "manufacturer": "Intex",
             "model": "Smart Pool",
         }

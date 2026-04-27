@@ -87,6 +87,8 @@ class TuyaLocalDevice:
             self._close_device()
             return None
 
+        _LOGGER.debug("TinyTuya full status response: %r", status)
+
         if not isinstance(status, dict):
             _LOGGER.error("Unexpected status response: %r", status)
             self._close_device()
@@ -120,6 +122,8 @@ class TuyaLocalDevice:
             _LOGGER.error("Error setting device value: %s", err, exc_info=True)
             self._close_device()
             return False
+
+        _LOGGER.debug("TinyTuya full set_value response for DP %s: %r", dp, result)
 
         if isinstance(result, dict):
             if result.get("success") is True:

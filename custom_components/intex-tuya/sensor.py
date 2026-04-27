@@ -31,11 +31,13 @@ async def async_setup_entry(
     data = hass.data[DOMAIN][config_entry.entry_id]
     device = data["device"]
     device_id = data["device_id"]
+    device_name = data["name"]
 
     entities = [
         IntexPoolSensor(
             device,
             device_id,
+            device_name,
             DP_TEMPERATURE,
             "Current Temperature",
             SensorDeviceClass.TEMPERATURE,
@@ -44,6 +46,7 @@ async def async_setup_entry(
         IntexPoolSensor(
             device,
             device_id,
+            device_name,
             DP_TARGET_TEMP,
             "Target Temperature",
             SensorDeviceClass.TEMPERATURE,
@@ -52,12 +55,14 @@ async def async_setup_entry(
         IntexPoolSensor(
             device,
             device_id,
+            device_name,
             DP_HVAC_ACTION,
             "Heat Indicator",
         ),
         IntexPoolSensor(
             device,
             device_id,
+            device_name,
             DP_ERROR_CODE,
             "Error Code",
         ),
@@ -75,6 +80,7 @@ class IntexPoolSensor(SensorEntity):
         self,
         device: TuyaLocalDevice,
         device_id: str,
+        device_name: str,
         dp: str,
         name: str,
         device_class: SensorDeviceClass | None = None,
@@ -83,6 +89,7 @@ class IntexPoolSensor(SensorEntity):
         """Initialize the sensor."""
         self.device = device
         self._device_id = device_id
+        self._device_name = device_name
         self._dp = dp
         self._attr_name = name
         self._attr_device_class = device_class
@@ -95,7 +102,7 @@ class IntexPoolSensor(SensorEntity):
         """Return device info."""
         return {
             "identifiers": {(DOMAIN, self._device_id)},
-            "name": "Intex Pool",
+            "name": self._device_name,
             "manufacturer": "Intex",
             "model": "Smart Pool",
         }

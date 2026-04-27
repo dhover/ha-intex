@@ -5,7 +5,7 @@ import logging
 from typing import Final
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import CONF_NAME, Platform
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, PLATFORMS
@@ -32,6 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "device": device,
         "host": entry.data.get("host"),
         "device_id": entry.data.get("device_id"),
+        "name": entry.data.get(CONF_NAME, "Intex Pool"),
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

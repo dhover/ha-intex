@@ -9,5 +9,5 @@
   "requirements": [
     "tinytuya==1.17.3"
   ],
-  "version": "0.1.1"
+  "version": "0.1.2"
 }

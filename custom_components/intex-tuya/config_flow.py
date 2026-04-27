@@ -52,7 +52,7 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(user_input[CONF_DEVICE_ID])
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=user_input.get(CONF_NAME, user_input[CONF_DEVICE_ID]),
+                    title=user_input[CONF_HOST],
                     data=user_input,
                 )
 
@@ -82,7 +82,7 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_mismatch(reason="wrong_device")
                 self.hass.config_entries.async_update_entry(
                     entry,
-                    title=user_input.get(CONF_NAME, user_input[CONF_DEVICE_ID]),
+                    title=user_input[CONF_HOST],
                 )
                 return self.async_update_reload_and_abort(
                     entry,

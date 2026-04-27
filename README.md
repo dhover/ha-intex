@@ -13,10 +13,10 @@ A custom Home Assistant integration for controlling an Intex spa or pool device 
 
 ## Installation
 
-1. Copy the `intex-tuya` folder to your Home Assistant `custom_components` directory:
+1. Copy the `intex_localtuya` folder to your Home Assistant `custom_components` directory:
 
    ```text
-   custom_components/intex-tuya/
+   custom_components/intex_localtuya/
    ```
 
 2. Restart Home Assistant.
@@ -82,7 +82,7 @@ This integration is currently mapped for the following Intex/Tuya spa layout:
 | `114` | Error code |
 | `117` | HVAC action |
 
-If your device exposes different DPs, update [const.py](D:/git/ha-intex/custom_components/intex-tuya/const.py).
+If your device exposes different DPs, update [const.py](D:/git/ha-intex/custom_components/intex_localtuya/const.py).
 
 ## Protocol Notes
 
@@ -98,8 +98,8 @@ Enable debug logging in `configuration.yaml`:
 logger:
   default: info
   logs:
-    custom_components.intex_tuya: debug
-    custom_components.intex_tuya.tuya_local: debug
+    custom_components.intex_localtuya: debug
+    custom_components.intex_localtuya.tuya_local: debug
 ```
 
 With debug logging enabled, the integration logs:

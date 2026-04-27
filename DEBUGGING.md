@@ -10,8 +10,8 @@ To see detailed debug logs from the integration, add this to your Home Assistant
 logger:
   default: info
   logs:
-    custom_components.intex_tuya: debug
-    custom_components.intex_tuya.tuya_local: debug
+    custom_components.intex_localtuya: debug
+    custom_components.intex_localtuya.tuya_local: debug
 ```
 
 Then restart Home Assistant and check the logs.

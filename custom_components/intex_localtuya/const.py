@@ -1,6 +1,6 @@
-"""Constants for the Intex Tuya integration."""
+"""Constants for the Intex LocalTuya integration."""
 
-DOMAIN = "intex_tuya"
+DOMAIN = "intex_localtuya"
 
 # Configuration keys
 CONF_HOST = "host"

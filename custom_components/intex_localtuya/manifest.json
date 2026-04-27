@@ -1,5 +1,5 @@
 {
-  "domain": "intex_tuya",
+  "domain": "intex_localtuya",
   "name": "Intex Pool via Tuya (Local)",
   "codeowners": ["@user"],
   "config_flow": true,
@@ -9,5 +9,5 @@
   "requirements": [
     "tinytuya==1.17.3"
   ],
-  "version": "0.1.2"
+  "version": "0.2.1"
 }

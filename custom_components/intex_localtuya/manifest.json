@@ -1,11 +1,11 @@
 {
   "domain": "intex_localtuya",
   "name": "Intex Pool via Tuya (Local)",
-  "codeowners": ["@user"],
+  "codeowners": ["@dhover"],
   "config_flow": true,
   "documentation": "https://github.com/dhover/ha-intex",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/dhover/ha-intex/issues",
   "requirements": [],
-  "version": "0.2.7"
+  "version": "0.2.8"
 }

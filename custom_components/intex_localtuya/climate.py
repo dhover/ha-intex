@@ -50,8 +50,6 @@ class IntexPoolClimate(ClimateEntity):
     _attr_has_entity_name = True
     _attr_name = "Thermostat"
     _attr_native_temperature_unit = UnitOfTemperature.FAHRENHEIT
-    # Still read by Home Assistant versions that haven't finished the native_* migration
-    _attr_temperature_unit = UnitOfTemperature.FAHRENHEIT
     _attr_precision = PRECISION_WHOLE
     _attr_min_temp = MIN_TEMP
     _attr_max_temp = MAX_TEMP

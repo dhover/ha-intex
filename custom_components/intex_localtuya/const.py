@@ -6,6 +6,14 @@ DOMAIN = "intex_localtuya"
 CONF_HOST = "host"
 CONF_DEVICE_ID = "device_id"
 CONF_LOCAL_KEY = "local_key"
+CONF_PROTOCOL_VERSION = "protocol_version"
+
+DEFAULT_PROTOCOL_VERSION = "3.4"
+SUPPORTED_PROTOCOL_VERSIONS = [
+    "3.3",
+    "3.4",
+    "3.5",
+]
 
 # Tuya device DPs (Data Points)
 # These are the function codes for pool-specific controls

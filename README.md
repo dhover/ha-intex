@@ -5,7 +5,7 @@ A custom Home Assistant integration for controlling an Intex spa or pool device 
 ## Features
 
 - Local communication only, no Tuya cloud dependency for normal control
-- Tuya protocol `3.4` via `tinytuya`
+- Tuya local protocol via `tinytuya` with support for `3.3`, `3.4`, and `3.5`
 - Climate entity for the spa thermostat
 - Separate switches for `Power`, `Filter`, `Bubbles`, and `Heat`
 - Sensors for current temperature, target temperature, heat state, and error code
@@ -31,6 +31,7 @@ The config flow asks for:
 - `Device IP Address`: used as the integration entry title
 - `Device ID`
 - `Local Key`
+- `Protocol Version`: defaults to `3.4`, and setup will auto-try `3.3`/`3.5` if needed
 
 You can change these later from the integration's reconfigure action.
 
@@ -87,7 +88,7 @@ If your device exposes different DPs, update [const.py](D:/git/ha-intex/custom_c
 ## Protocol Notes
 
 - Port: `6668/TCP`
-- Protocol version: `3.4`
+- Protocol versions: `3.3`, `3.4`, `3.5`
 - Library: `tinytuya`
 
 ## Logging and Debugging
@@ -125,7 +126,7 @@ That is useful when you want to inspect raw DPs or see whether your device expos
 
 **Connects but returns no data**
 
-- Confirm the device really uses local Tuya protocol `3.4`.
+- Reconfigure the integration and confirm the detected or selected Tuya protocol version is correct.
 - Re-check the `Local Key`.
 
 **Wrong DPs or missing entities**

@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME, Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, PLATFORMS
+from .const import CONF_PROTOCOL_VERSION, DEFAULT_PROTOCOL_VERSION, DOMAIN, PLATFORMS
 from .tuya_local import TuyaLocalDevice
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -20,19 +20,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Intex Tuya from a config entry."""
 
     hass.data.setdefault(DOMAIN, {})
-    
+
     # Create local Tuya device
     device = TuyaLocalDevice(
         host=entry.data.get("host"),
         device_id=entry.data.get("device_id"),
         local_key=entry.data.get("local_key"),
+        protocol_version=entry.data.get(
+            CONF_PROTOCOL_VERSION, DEFAULT_PROTOCOL_VERSION
+        ),
     )
-    
+
     hass.data[DOMAIN][entry.entry_id] = {
         "device": device,
         "host": entry.data.get("host"),
         "device_id": entry.data.get("device_id"),
         "name": entry.data.get(CONF_NAME, "Intex Pool"),
+        "protocol_version": entry.data.get(
+            CONF_PROTOCOL_VERSION, DEFAULT_PROTOCOL_VERSION
+        ),
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

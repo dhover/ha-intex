@@ -3,11 +3,9 @@
   "name": "Intex Pool via Tuya (Local)",
   "codeowners": ["@user"],
   "config_flow": true,
-  "documentation": "https://github.com/user/ha-intex",
+  "documentation": "https://github.com/dhover/ha-intex",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/user/ha-intex/issues",
-  "requirements": [
-    "tinytuya==1.17.3"
-  ],
-  "version": "0.2.1"
+  "issue_tracker": "https://github.com/dhover/ha-intex/issues",
+  "requirements": [],
+  "version": "0.2.2"
 }

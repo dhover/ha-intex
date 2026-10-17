@@ -9,7 +9,14 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_NAME
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import CONF_DEVICE_ID, CONF_LOCAL_KEY, DOMAIN
+from .const import (
+    CONF_DEVICE_ID,
+    CONF_LOCAL_KEY,
+    CONF_PROTOCOL_VERSION,
+    DEFAULT_PROTOCOL_VERSION,
+    DOMAIN,
+    SUPPORTED_PROTOCOL_VERSIONS,
+)
 from .tuya_local import TuyaLocalDevice
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,6 +36,9 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_HOST): str,
                 vol.Required(CONF_DEVICE_ID): str,
                 vol.Required(CONF_LOCAL_KEY): str,
+                vol.Optional(
+                    CONF_PROTOCOL_VERSION, default=DEFAULT_PROTOCOL_VERSION
+                ): vol.In(SUPPORTED_PROTOCOL_VERSIONS),
             }
         )
 
@@ -100,15 +110,36 @@ class IntexTuyaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         Data has the host, device_id, and local_key entered.
         """
-        device = TuyaLocalDevice(
-            host=user_input[CONF_HOST],
-            device_id=user_input[CONF_DEVICE_ID],
-            local_key=user_input[CONF_LOCAL_KEY],
+        configured_version = user_input.get(
+            CONF_PROTOCOL_VERSION, DEFAULT_PROTOCOL_VERSION
         )
-        try:
-            status = await device.get_status()
-        finally:
-            await device.disconnect()
+        versions_to_try = [configured_version]
+        versions_to_try.extend(
+            version
+            for version in SUPPORTED_PROTOCOL_VERSIONS
+            if version != configured_version
+        )
 
-        if not status or "dps" not in status:
-            raise ConnectionError("Unable to connect to device")
+        for version in versions_to_try:
+            device = TuyaLocalDevice(
+                host=user_input[CONF_HOST],
+                device_id=user_input[CONF_DEVICE_ID],
+                local_key=user_input[CONF_LOCAL_KEY],
+                protocol_version=version,
+            )
+            try:
+                status = await device.get_status()
+            finally:
+                await device.disconnect()
+
+            if status and "dps" in status:
+                if user_input.get(CONF_PROTOCOL_VERSION) != version:
+                    _LOGGER.info(
+                        "Detected working Tuya protocol version %s for %s",
+                        version,
+                        user_input[CONF_HOST],
+                    )
+                    user_input[CONF_PROTOCOL_VERSION] = version
+                return
+
+        raise ConnectionError("Unable to connect to device")

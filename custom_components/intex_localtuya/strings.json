@@ -8,17 +8,19 @@
           "name": "Device Name",
           "host": "Device IP Address",
           "device_id": "Device ID",
-          "local_key": "Local Key"
+          "local_key": "Local Key",
+          "protocol_version": "Protocol Version"
         }
       },
       "reconfigure": {
         "title": "Reconfigure Intex Pool Device",
-        "description": "Update your device name, IP address, Device ID, and Local Key.",
+        "description": "Update your device name, IP address, Device ID, Local Key, and protocol version.",
         "data": {
           "name": "Device Name",
           "host": "Device IP Address",
           "device_id": "Device ID",
-          "local_key": "Local Key"
+          "local_key": "Local Key",
+          "protocol_version": "Protocol Version"
         }
       }
     },

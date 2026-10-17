@@ -49,7 +49,7 @@ class IntexPoolClimate(ClimateEntity):
 
     _attr_has_entity_name = True
     _attr_name = "Thermostat"
-    _attr_temperature_unit = UnitOfTemperature.FAHRENHEIT
+    _attr_native_temperature_unit = UnitOfTemperature.FAHRENHEIT
     _attr_precision = PRECISION_WHOLE
     _attr_min_temp = MIN_TEMP
     _attr_max_temp = MAX_TEMP
@@ -87,12 +87,12 @@ class IntexPoolClimate(ClimateEntity):
         }
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current temperature."""
         return self._current_temp
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return the target temperature."""
         return self._target_temp
 
